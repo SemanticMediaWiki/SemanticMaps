@@ -4,15 +4,8 @@ Extension page on mediawiki.org: http://www.mediawiki.org/wiki/Extension:Semanti
 Documentation and examples: http://mapping.referata.com/wiki/Semantic_Maps
 
 
-=== Semantic Maps 2.1 ===
-(dev)
-
-; Other improvements
-
-* The map printer has been replaced by an alias to whatever is the printer of the default mapping service.
-
 === Semantic Maps 2.0 ===
-(2012-10-??)
+(2012-10-05)
 
 ; Compatibility changes
 
