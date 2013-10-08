@@ -245,6 +245,7 @@ wfProfileIn( __METHOD__ );
 $results=$this->queryResult->getResults();
 
 #hlDump("mResults=".print_r($results,TRUE)."\n\n");
+                global  $gw_locations_speedup;
 #                $gw_locations_speedup=1;   # will be moved to some config file 
                 if($gw_locations_speedup) {
                         $this->geoShapes=FindShapesHelper::findShapesLocationsFast( $results );
