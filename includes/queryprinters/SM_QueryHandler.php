@@ -238,10 +238,26 @@ class SMQueryHandler {
 		return $this->geoShapes;
 	}
 
+        
 	protected function findShapes() {
+wfProfileIn( __METHOD__ ); 
+#hlLog("findShapes start");
+$results=$this->queryResult->getResults();
+
+#hlDump("mResults=".print_r($results,TRUE)."\n\n");
+                global  $gw_locations_speedup;
+#                $gw_locations_speedup=1;   # will be moved to some config file 
+                if($gw_locations_speedup) {
+                        $this->geoShapes=FindShapesHelper::findShapesLocationsFast( $results );
+                        goto do_return;
+                }
 		while ( ( $row = $this->queryResult->getNext() ) !== false ) {
 			$this->handleResultRow( $row );
 		}
+do_return:
+#hlDump("geoShapes=".print_r($this->geoShapes,TRUE)."\n\n");                
+#hlLog("findShapes end");
+wfProfileOut( __METHOD__ ); 
 	}
 
 	/**
@@ -260,37 +276,65 @@ class SMQueryHandler {
 		$title = '';
 		$text = '';
 
+global $hlCount;
+$hlCount++;
 		// Loop throught all fields of the record.
 		foreach ( $row as $i => $resultArray ) {
+
+if($hlCount>=0) {
+#  $ser=serialize($resultArray);
+#  hlLog("handleResultRow hlCount=".$hlCount." row=".$ser);
+#  hlLog("handleResultRow hlCount=".$hlCount." row=".print_r($resultArray,TRUE));
+}
 			/* SMWPrintRequest */ $printRequest = $resultArray->getPrintRequest();
 
 			// Loop throught all the parts of the field value.
-			while ( ( /* SMWDataValue */ $dataValue = $resultArray->getNextDataValue() ) !== false ) {
-				if ( $dataValue->getTypeID() == '_wpg' && $i == 0 ) {
+#			while ( ( /* SMWDataValue */ $dataValue = $resultArray->getNextDataValue() ) !== false ) {
+                do_while_dv:
+wfProfileIn("HandleResultRow-getNextDataValue"); 
+                        $dataValue = $resultArray->getNextDataValue();  # SMW_ResultArray.php +138
+wfProfileOut("HandleResultRow-getNextDataValue"); 
+                        if($dataValue !== false) {
+wfProfileIn("HandleResultRow-dv-getTypeID"); 
+                                $dt=$dataValue->getTypeID();
+wfProfileOut("HandleResultRow-dv-getTypeID"); 
+				if ( $dt == '_wpg' && $i == 0 ) {
+wfProfileIn("HandleResultRow-handleResultSubject"); 
 					list( $title, $text ) = $this->handleResultSubject( $dataValue );
+wfProfileOut("HandleResultRow-handleResultSubject"); 
 				}
-				else if ( $dataValue->getTypeID() == '_str' && $i == 0 ) {
+				else if ( $dt == '_str' && $i == 0 ) {
+wfProfileIn("HandleResultRow-dt_str"); 
 					$title = $dataValue->getLongText( $this->outputmode, null );
 					$text = $dataValue->getLongText( $this->outputmode, smwfGetLinker() );
+wfProfileOut("HandleResultRow-dt_str"); 
 				}
-				else if ( $dataValue->getTypeID() == '_gpo' ) {
+				else if ( $dt == '_gpo' ) {
+wfProfileIn("HandleResultRow-dt_gpo"); 
 					$dataItem = $dataValue->getDataItem();
 					$polyHandler = new PolygonHandler ( $dataItem->getString() );
 					$this->geoShapes[ $polyHandler->getGeoType() ][] = $polyHandler->shapeFromText();
+wfProfileOut("HandleResultRow-dt_gpo"); 
 				}
-				else if ( $dataValue->getTypeID() != '_geo' && $i != 0 ) {
+				else if ( $dt != '_geo' && $i != 0 ) {
+wfProfileIn("HandleResultRow-handleResultProperty"); 
 					$properties[] = $this->handleResultProperty( $dataValue, $printRequest );
+wfProfileOut("HandleResultRow-handleResultProperty"); 
 				}
-				else if ( $printRequest->getMode() == SMWPrintRequest::PRINT_PROP && $printRequest->getTypeID() == '_geo' ) {
-					$dataItem = $dataValue->getDataItem();
+				else {
+wfProfileIn("HandleResultRow-locations"); 
+                                        if ( $printRequest->getMode() == SMWPrintRequest::PRINT_PROP && $printRequest->getTypeID() == '_geo' ) {
+					        $dataItem = $dataValue->getDataItem();
 
-					$location = MapsLocation::newFromLatLon( $dataItem->getLatitude(), $dataItem->getLongitude() );
+					        $location = MapsLocation::newFromLatLon( $dataItem->getLatitude(), $dataItem->getLongitude() );
 
-					if ( $location->isValid() ) {
-						$locations[] = $location;
-					}
-
+					        if ( $location->isValid() ) {
+						        $locations[] = $location;
+					        }
+                                        }
+wfProfileOut("HandleResultRow-locations"); 
 				}
+                                goto do_while_dv;
 			}
 		}
 
@@ -299,17 +343,17 @@ class SMQueryHandler {
 		}
 
 		$icon = $this->getLocationIcon( $row );
+# $icon = "/marker2.png";
+# hlLog("getLocationIcon icon=".$icon);   no timing problem
 
-		$this->geoShapes['locations'] = array_merge(
-			$this->geoShapes['locations'],
-			$this->buildLocationsList(
-				$locations,
-				$text,
-				$icon,
-				$properties,
-				Title::newFromText( $title )
-			)
-		);
+                $bll= $this->buildLocationsList( $locations, $text, $icon, $properties, Title::newFromText( $title ));
+
+#if($hlCount==10) {
+#  $ser=serialize($bll);
+#  hlLog("handleResultRow bll=".$ser);
+#  hlLog("handleResultRow bll=".print_r($bll,TRUE));
+#}
+		$this->geoShapes['locations'] = array_merge( $this->geoShapes['locations'],$bll);
 	}
 
 	/**
@@ -436,6 +480,7 @@ class SMQueryHandler {
 	 * @return MapsLocation[]
 	 */
 	protected function buildLocationsList( array $locations, $text, $icon, array $properties, Title $title = null ) {
+wfProfileIn( __METHOD__ ); 
 		if ( $this->template ) {
 			global $wgParser;
 			$parser = $wgParser;
@@ -470,6 +515,7 @@ class SMQueryHandler {
 			$location->setText( $text );
 			$location->setIcon( $icon );
 		}
+wfProfileOut( __METHOD__ ); 
 
 		return $locations;
 	}
@@ -529,3 +575,73 @@ class SMQueryHandler {
 	}
 
 }
+
+class FindShapesHelper extends SMWDIWikiPage {
+
+        public function findShapesLocationsFast( $results ) {   # currently build duplicate structure
+	        $geoShapes = array(
+		        'lines' => array(),
+		        'locations' => array(),
+		        'polygons' => array()
+	        );
+
+                $dbr = wfGetDB( DB_SLAVE );
+
+                $TitleRetSid=array();
+                $TitleRetData=array();
+                $res = $dbr->select( 'smw_object_ids', array( 'smw_id', 'smw_namespace', 'smw_title' ), array( "smw_namespace = 0" ) );
+                while(($row = $res->fetchRow()) !== false) {
+                        $sid=$row['smw_id'];
+                        $title=$row['smw_title'];
+                        $TitleRetSid[$title]=$sid;
+                        $TitleRetData[$title]=array ( 'sid' => $sid );
+                }
+                # hlDump("select(TitleRetSid)=".print_r($TitleRetSid,TRUE)."\n\n");                
+
+                $SidRetLat=array(); 
+                $SidRetLon=array(); 
+                $res = $dbr->select( 'smw_di_coords', array( 's_id', 'o_lat', 'o_lon' ) );
+                while(($row = $res->fetchRow()) !== false) {
+                        $sid=$row['s_id'];
+                        $lat=$row['o_lat'];
+                        $lon=$row['o_lon'];
+                        $SidRetLat[$sid]=$lat;
+                        $SidRetLon[$sid]=$lon;
+                }  
+                # hlDump("select(smw_di_coords/SidRetLat)=".print_r($SidRetLat,TRUE)."\n\n");                
+                # hlDump("select(smw_di_coords/SidRetLon)=".print_r($SidRetLon,TRUE)."\n\n");                
+
+		foreach ( $results as $i => $dwp) {
+                        $title=$dwp->m_dbkey;
+                        $icon= $dwp->display_options['icon'];
+                        $sid= isset($TitleRetSid[$title])? $TitleRetSid[$title] : NULL;
+                        if($sid !== NULL) {
+                                $lat=isset($SidRetLat[$sid]) ? $SidRetLat[$sid] : NULL;
+                                $lon=isset($SidRetLon[$sid]) ? $SidRetLon[$sid] : NULL;
+                                if($lat !== NULL) {
+                                        $TitleRetData[$title]['lat']=$lat;
+                                        $TitleRetData[$title]['lon']=$lon;
+                                        $ml=MapsLocation::newFromLatLon($lat,$lon);
+                                        $title_stripped=preg_replace('/_/', ' ', $title);
+                                        $ml->setTitle($title_stripped);  
+                                        $ml->setIcon($icon);
+                                        $text="<b><a href=\"/index.php/$title\" title=\"$title_stripped\">$title_stripped</a></b>";
+                                        $ml->setText($text);  
+                                        $geoShapes['locations'][] = $ml;
+                                } else {
+                                        # hlDump("no lat for title=".$title);
+                                }
+                        } else {
+                                # hlDump("no sid for title=".$title);
+                        }
+                }
+                # hlDump("TitleRetData=".print_r($TitleRetData,TRUE)."\n\n");       
+
+                # hlDump("geoShapes(new)=".print_r($geoShapes,TRUE)."\n\n");                
+
+                return $geoShapes;
+        }
+
+}
+
+
