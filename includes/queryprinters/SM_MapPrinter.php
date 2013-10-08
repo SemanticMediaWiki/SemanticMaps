@@ -182,6 +182,7 @@ class SMMapPrinter extends SMWResultPrinter {
 	 * @return array or string
 	 */
 	public final function getResultText( SMWQueryResult $res, $outputmode ) {
+# hlLog("getResultText start outputmode=".$outputmode);
 		if ( $this->fatalErrorMsg === false ) {
 			global $wgParser;
 			
@@ -192,7 +193,9 @@ class SMMapPrinter extends SMWResultPrinter {
 			$queryHandler->setTemplate( $params['template'] );
 			$queryHandler->setHideNamespace( $params['hidenamespace'] );
 			
+# hlLog("getResultText 1");
 			$this->handleMarkerData( $params, $queryHandler );
+# hlLog("getResultText 2");
 			$locationAmount = count( $params['locations'] );
 			
 			if ( $params['forceshow'] || $locationAmount > 0 ) {
@@ -223,7 +226,10 @@ class SMMapPrinter extends SMWResultPrinter {
 					unset( $params['source'] );
 				}
 
-				return $this->getMapHTML( $params, $wgParser, $mapName );
+# hlLog("getResultText 11");
+				$ret=$this->getMapHTML( $params, $wgParser, $mapName );
+# hlLog("getResultText 12");
+                                return $ret;
 			}
 			else {
 				return $params['default'];
@@ -232,6 +238,7 @@ class SMMapPrinter extends SMWResultPrinter {
 		else {
 			return $this->fatalErrorMsg;
 		}
+# hlLog("getResultText end");
 	}
 
 	/**
@@ -246,12 +253,13 @@ class SMMapPrinter extends SMWResultPrinter {
 	 * @return string
 	 */
 	protected function getMapHTML( array $params, Parser $parser, $mapName ) {
+# hlLog("getMapHTML start");
 		return Html::rawElement(
 			'div',
 			array(
 				'id' => $mapName,
 				'style' => "width: {$params['width']}; height: {$params['height']}; background-color: #cccccc; overflow: hidden;",
-				'class' => 'maps-map maps-' . $this->service->getName()
+				'class' => 'maps-map maps-hl8 maps-' . $this->service->getName()
 			),
 			wfMessage( 'maps-loading-map' )->inContentLanguage()->escaped() .
 				Html::element(
@@ -286,7 +294,9 @@ class SMMapPrinter extends SMWResultPrinter {
 	 * @param $queryHandler
 	 */
 	protected function handleMarkerData( array &$params, $queryHandler ) {
+# hlLog("handleMarkerData start");
 		$queryShapes = $queryHandler->getShapes();
+# hlLog("handleMarkerData 1");
 		global $wgParser;
 
 		$parser = version_compare( $GLOBALS['wgVersion'], '1.18', '<' ) ? $wgParser : clone $wgParser;
@@ -295,6 +305,7 @@ class SMMapPrinter extends SMWResultPrinter {
 		$visitedIconUrl = MapsMapper::getFileUrl( $params['visitedicon'] );
 		$params['locations'] = array();
 
+# hlLog("handleMarkerData 2");
 		foreach ( $params['staticlocations'] as $location ) {
 			if ( $location->isValid() ) {
 				$jsonObj = $location->getJSONObject( $params['title'], $params['label'], $iconUrl, '', '', $visitedIconUrl );
@@ -309,6 +320,7 @@ class SMMapPrinter extends SMWResultPrinter {
 				$params['locations'][] = $jsonObj;					
 			}
 		}
+# hlLog("handleMarkerData 3");
 		
 		foreach ( $queryShapes['locations'] as $location ) {
 			if ( $location->isValid() ) {
