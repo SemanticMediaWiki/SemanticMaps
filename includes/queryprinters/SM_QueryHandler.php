@@ -244,7 +244,7 @@ wfProfileIn( __METHOD__ );
 #hlLog("findShapes start");
 $results=$this->queryResult->getResults();
 
-#hlDump("mResults=".print_r($results,TRUE)."\n\n");
+# hlDump("mResults=".print_r($results,TRUE)."\n\n");
                 global  $gw_locations_speedup;
 #                $gw_locations_speedup=1;   # will be moved to some config file 
                 if($gw_locations_speedup) {
@@ -578,7 +578,41 @@ wfProfileOut( __METHOD__ );
 
 class FindShapesHelper extends SMWDIWikiPage {
 
+
+        public function LatLonDistance($lat1,$lon1,$lat2,$lon2) {
+                $dist=0;
+
+		$northRad1 = deg2rad( $lat1 );
+		$eastRad1 = deg2rad( $lon1 );
+		$cosNorth1 = cos( $northRad1 );
+		$cosEast1 = cos( $eastRad1 );
+		$sinNorth1 = sin( $northRad1 );
+		$sinEast1 = sin( $eastRad1 );
+		
+		$northRad2 = deg2rad( $lat2 );
+		$eastRad2 = deg2rad( $lon2 );
+		$cosNorth2 = cos( $northRad2 );
+		$cosEast2 = cos( $eastRad2 );
+		$sinNorth2 = sin( $northRad2 );
+		$sinEast2 = sin( $eastRad2 );
+
+		$term1 = $cosNorth1 * $sinEast1 - $cosNorth2 * $sinEast2;
+		$term2 = $cosNorth1 * $cosEast1 - $cosNorth2 * $cosEast2;
+		$term3 = $sinNorth1 - $sinNorth2;
+
+		$distThruSquared = $term1 * $term1 + $term2 * $term2 + $term3 * $term3;
+
+                $earth_radius=6371000;
+		$dist = 2 * $earth_radius * asin( sqrt( $distThruSquared ) / 2 );	
+                return $dist;          
+        }
+
         public function findShapesLocationsFast( $results ) {   # currently build duplicate structure
+                global $gw_query_other_params;
+                global $gw_query_params;
+                global $gw_cutoff_count;
+                global $gw_cutoff_icon;
+
 	        $geoShapes = array(
 		        'lines' => array(),
 		        'locations' => array(),
@@ -586,6 +620,16 @@ class FindShapesHelper extends SMWDIWikiPage {
 	        );
 
                 $dbr = wfGetDB( DB_SLAVE );
+
+#hlDumpTitleVar("findShapesLocationsFast gw_query_other_params",$gw_query_other_params);
+#hlDumpTitleVar("findShapesLocationsFast gw_query_params",$gw_query_params);
+                $centre=(isset($gw_query_params["centre"])) ? $gw_query_params["centre"]->getValue() : null;
+#hlDumpTitleVar("findShapesLocationsFast centre",$centre);
+                $centre_lat= isset($centre["lat"]) ? $centre["lat"] : 0;
+                $centre_lon= isset($centre["lon"]) ? $centre["lon"] : 0;
+#hlDumpTitleVar("findShapesLocationsFast centre_lat",$centre_lat);
+#hlDumpTitleVar("findShapesLocationsFast centre_lon",$centre_lon);
+                $cutoff_marker_reduction=(empty($centre_lat)) ? 0 : 1;
 
                 $TitleRetSid=array();
                 $TitleRetData=array();
@@ -611,9 +655,10 @@ class FindShapesHelper extends SMWDIWikiPage {
                 # hlDump("select(smw_di_coords/SidRetLat)=".print_r($SidRetLat,TRUE)."\n\n");                
                 # hlDump("select(smw_di_coords/SidRetLon)=".print_r($SidRetLon,TRUE)."\n\n");                
 
+                $title_order=array();
 		foreach ( $results as $i => $dwp) {
                         $title=$dwp->m_dbkey;
-                        $icon= $dwp->display_options['icon'];
+                        $icon= isset($dwp->display_options['icon'])? $dwp->display_options['icon']: NULL ;
                         $sid= isset($TitleRetSid[$title])? $TitleRetSid[$title] : NULL;
                         if($sid !== NULL) {
                                 $lat=isset($SidRetLat[$sid]) ? $SidRetLat[$sid] : NULL;
@@ -621,13 +666,16 @@ class FindShapesHelper extends SMWDIWikiPage {
                                 if($lat !== NULL) {
                                         $TitleRetData[$title]['lat']=$lat;
                                         $TitleRetData[$title]['lon']=$lon;
+                                        $TitleRetData[$title]['indi']=1;
                                         $ml=MapsLocation::newFromLatLon($lat,$lon);
                                         $title_stripped=preg_replace('/_/', ' ', $title);
                                         $ml->setTitle($title_stripped);  
                                         $ml->setIcon($icon);
                                         $text="<b><a href=\"/index.php/$title\" title=\"$title_stripped\">$title_stripped</a></b>";
                                         $ml->setText($text);  
-                                        $geoShapes['locations'][] = $ml;
+                                        $TitleRetData[$title]['ml']=$ml;
+                                        $title_order[]=$title;
+                                        # $geoShapes['locations'][] = $ml;
                                 } else {
                                         # hlDump("no lat for title=".$title);
                                 }
@@ -635,9 +683,63 @@ class FindShapesHelper extends SMWDIWikiPage {
                                 # hlDump("no sid for title=".$title);
                         }
                 }
-                # hlDump("TitleRetData=".print_r($TitleRetData,TRUE)."\n\n");       
 
-                # hlDump("geoShapes(new)=".print_r($geoShapes,TRUE)."\n\n");                
+                $TitleRetDist=array();
+                $title_count=sizeof($title_order);
+                if($cutoff_marker_reduction) {
+                        if($title_count>$gw_cutoff_count) {
+                                foreach( (array) $title_order as $title ) {
+                                        $lat=$TitleRetData[$title]['lat'];
+                                        $lon=$TitleRetData[$title]['lon'];
+                                        $TitleRetData[$title]['street']=preg_replace('/\d.*$/','',$title);
+                                        $dist=FindShapesHelper::LatLonDistance($lat,$lon,$centre_lat,$centre_lon);
+                                        $TitleRetData[$title]['dist']=$dist;   # for debugging
+                                        $TitleRetDist[$title]=$dist;
+                                }
+                                asort($TitleRetDist);
+                                $h=array_slice($TitleRetDist,$gw_cutoff_count,1,TRUE);
+                                foreach((array) $h as $key => $cutoff_dist);
+                                foreach( (array) $title_order as $title ) {
+                                        $dist=$TitleRetDist[$title];
+                                        if($dist>=$cutoff_dist) {
+                                                $TitleRetData[$title]['indi']=2;
+                                        }
+                                }
+                                ksort($TitleRetDist);
+                                $title_last='';
+                                $street_last='';
+                                foreach( (array) $title_order as $title ) {
+                                        if($TitleRetData[$title]['indi']==2) {
+                                                $street=$TitleRetData[$title]['street'];
+                                                if(strcmp($street,$street_last)) {
+                                                        $street_last=$street;
+                                                        $title_last=$title;
+                                                } else {
+                                                        $TitleRetData[$title]['indi']=0;
+                                                        $TitleRetData[$title_last]['indi']++;
+                                                }
+                                        }
+                                }
+# hlDumpTitleVar("findShapesLocationsFast TitleRetDist",$TitleRetDist);
+                        }
+                }
+# hlDumpTitleVar("findShapesLocationsFast TitleRetData",$TitleRetData);
+                foreach( (array) $title_order as $title ) {
+                        $data=$TitleRetData[$title];
+                        $ml=$data['ml'];
+                        $indi=$data['indi'];
+                        if($indi>2) {   # collated pages
+                                $ml->setIcon($gw_cutoff_icon);
+                                $ml->setText($ml->getText()."<br /> und weitere Adressen in dieser Straße");
+                        }
+                        if($data['indi']>0) {   # not deleted pages
+                                $geoShapes['locations'][] = $ml;
+                        }       
+                }
+
+#                hlDump("TitleRetData=".print_r($TitleRetData,TRUE)."\n\n");       
+
+#                hlDump("geoShapes(new)=".print_r($geoShapes,TRUE)."\n\n");                
 
                 return $geoShapes;
         }
