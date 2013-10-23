@@ -187,7 +187,10 @@ class SMMapPrinter extends SMWResultPrinter {
 			global $wgParser;
 			
 			$params = $this->params;
-			
+#hlDumpTitleVar("getResultText params",$params);
+#$centre = isset($params["centre"]) ? $params["centre"] : NULL;
+#hlDumpTitleVar("getResultText centre",$centre);
+
 			$queryHandler = new SMQueryHandler( $res, $outputmode );
 			$queryHandler->setShowSubject( $params['showtitle'] );
 			$queryHandler->setTemplate( $params['template'] );
@@ -295,6 +298,11 @@ class SMMapPrinter extends SMWResultPrinter {
 	 */
 	protected function handleMarkerData( array &$params, $queryHandler ) {
 # hlLog("handleMarkerData start");
+# hlDumpTitleVar("handleMarkerData params",$params);			
+
+# $centre = isset($params["centre"]) ? $params["centre"] : NULL;
+# hlDumpTitleVar("handleMarkerData centre",$centre);
+
 		$queryShapes = $queryHandler->getShapes();
 # hlLog("handleMarkerData 1");
 		global $wgParser;
