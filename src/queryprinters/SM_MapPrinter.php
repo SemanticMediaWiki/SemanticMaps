@@ -191,7 +191,7 @@ class SMMapPrinter extends SMW\ResultPrinter {
 				Html::element(
 					'div',
 					array( 'style' => 'display:none', 'class' => 'mapdata' ),
-					FormatJson::encode( $this->getJSONObject( $params, $parser ) )
+					str_replace( '\\', '\\\\', FormatJson::encode( $this->getJSONObject( $params, $parser ) ) )
 				)
 		);
 	}
