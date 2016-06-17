@@ -19,7 +19,7 @@ window.sm = new ( function( $, smw ) {
     this.ajaxUpdateMarker = function( map, query ) {
         var api = new smw.Api();
 
-        return api.fetch( query, false ).done( function( data ) {
+        return api.fetch( query ).done( function( data ) {
             if ( !data.hasOwnProperty( 'query' ) ||
                     !data.query.hasOwnProperty( 'results' ) ) {
                 return;
