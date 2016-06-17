@@ -5,7 +5,8 @@
  * @licence GNU GPL v2++
  * @author Peter Grassberger < petertheone@gmail.com >
  */
-window.sm = new ( function( $ ) {
+window.sm = new ( function( $, smw ) {
+    'use strict';
 
     this.buildQueryString = function( query, ajaxcoordproperty, top, right, bottom, left ) {
         query += ' [[' + ajaxcoordproperty + '::+]] ';
@@ -15,27 +16,14 @@ window.sm = new ( function( $ ) {
         return query;
     };
 
-    this.sendQuery = function( query ) {
-        return $.ajax( {
-            method: 'GET',
-            url: '/w/api.php?',
-            data: {
-                'action': 'ask',
-                'query': query,
-                'format': 'json'
-            },
-            dataType: 'json'
-        } );
-    };
-
     this.ajaxUpdateMarker = function( map, query ) {
-        return this.sendQuery(query).done( function( data ) {
+        var api = new smw.Api();
+
+        return api.fetch( query, false ).done( function( data ) {
             if ( !data.hasOwnProperty( 'query' ) ||
-                    !data.query.hasOwnProperty( 'results' )) {
+                    !data.query.hasOwnProperty( 'results' ) ) {
                 return;
             }
-            // todo: don't remove and recreate all markers..
-            // only add new ones.
             map.removeMarkers();
             for ( var property in data.query.results ) {
                 if ( data.query.results.hasOwnProperty( property ) ) {
@@ -50,7 +38,9 @@ window.sm = new ( function( $ ) {
                     map.addMarker( markerOptions );
                 }
             }
+        } ).fail( function ( error ) {
+            throw new Error( 'Failed sending query: ' + error );
         } );
     };
 
-} )( jQuery );
+} )( jQuery, window.semanticMediaWiki );

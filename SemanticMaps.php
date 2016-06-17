@@ -75,6 +75,7 @@ $GLOBALS['wgResourceModules']['ext.sm.forminputs'] = $moduleTemplate + [
 ];
 
 $GLOBALS['wgResourceModules']['ext.sm.common'] = $moduleTemplate + [
+	'dependencies' => [ 'ext.smw.api' ],
 	'scripts' => [
 		'ext.sm.common.js'
 	]
