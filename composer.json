@@ -30,6 +30,7 @@
 		"source": "https://github.com/SemanticMediaWiki/SemanticMaps"
 	},
 	"minimum-stability": "dev",
+	"prefer-stable": true,
 	"require": {
 		"php": ">=5.5.0",
 		"composer/installers": "^1.0.1",
