@@ -119,6 +119,7 @@ class SemanticMaps {
 		$this->mwGlobals['wgResourceModules']['ext.sm.common'] = $moduleTemplate + [
 			'localBasePath' => __DIR__ . '/src',
 			'remoteExtPath' => 'SemanticMaps/src',
+			'dependencies' => [ 'ext.smw.api' ],
 			'scripts' => [
 				'ext.sm.common.js'
 			]

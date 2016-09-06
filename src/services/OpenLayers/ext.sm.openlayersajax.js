@@ -5,9 +5,9 @@
  * @licence GNU GPL v2+
  * @author Peter Grassberger < petertheone@gmail.com >
  */
-
-
 (function( $, sm ) {
+    'use strict';
+
     var ajaxRequest = null;
 
     $( document ).ready( function() {

@@ -5,7 +5,8 @@
  * @licence GNU GPL v2++
  * @author Peter Grassberger < petertheone@gmail.com >
  */
-window.sm = new ( function( $, mw ) {
+window.sm = new ( function( $, mw, smw ) {
+    'use strict';
 
     this.buildQueryString = function( query, ajaxcoordproperty, top, right, bottom, left ) {
         var isCompoundQuery = query.indexOf('|') > -1;
@@ -23,37 +24,25 @@ window.sm = new ( function( $, mw ) {
         return query.join(' | ');
     };
 
-    this.sendQuery = function( query ) {
-        var isCompoundQuery = query.indexOf('|') > -1;
-        var action = isCompoundQuery ? 'compoundquery' : 'ask';
-        return $.ajax( {
-            method: 'GET',
-            url: mw.util.wikiScript( 'api' ),
-            data: {
-                'action': action,
-                'query': query,
-                'format': 'json'
-            },
-            dataType: 'json'
-        } );
-    };
-
     this.ajaxUpdateMarker = function( map, query, icon ) {
-        return this.sendQuery(query).done( function( data ) {
+        var isCompoundQuery = query.indexOf(';') > -1;
+        var action = isCompoundQuery ? 'compoundquery' : 'ask';
+
+        var api = new smw.Api();
+
+        return api.fetch( query, true, action ).done( function( data ) {
             if ( !data.hasOwnProperty( 'query' ) ||
-                    !data.query.hasOwnProperty( 'results' )) {
+                    !data.query.hasOwnProperty( 'results' ) ) {
                 return;
             }
-            // todo: don't remove and recreate all markers..
-            // only add new ones.
             map.removeMarkers();
             for ( var property in data.query.results ) {
                 if ( data.query.results.hasOwnProperty( property ) ) {
                     var location = data.query.results[property];
                     var coordinates = location.printouts[map.options.ajaxcoordproperty][0];
                     var markerOptions = {
-                        lat: coordinates.lat,
-                        lon: coordinates.lon,
+                      lat: coordinates.lat,
+                      lon: coordinates.lon,
                         title: location.fulltext,
                         text: '<b><a href="' + location.fullurl + '">' + location.fulltext + '</a></b>',
                         icon: icon
@@ -61,7 +50,9 @@ window.sm = new ( function( $, mw ) {
                     map.addMarker( markerOptions );
                 }
             }
+        } ).fail( function ( jqXHR, textStatus, errorThrown ) {
+            throw new Error( 'Failed sending query: ' + textStatus + ', ' + errorThrown );
         } );
     };
 
-} )( jQuery, mediaWiki );
+} )( jQuery, mediaWiki, semanticMediaWiki );
