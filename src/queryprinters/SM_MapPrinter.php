@@ -103,8 +103,7 @@ class SMMapPrinter extends SMW\ResultPrinter {
 
 		$params['ajaxquery'] = array(
 			'default' => '',
-			'type' => 'string',
-			'islist' => true,
+			'type' => 'string'
 		);
 
 		// Messages:
@@ -140,8 +139,7 @@ class SMMapPrinter extends SMW\ResultPrinter {
 		 */
 		global $wgParser;
 
-		global $egMapsEnableCategory;
-		if ($egMapsEnableCategory) {
+		if ( $GLOBALS['egMapsEnableCategory'] && $wgParser->getOutput() !== null ) {
 			$wgParser->addTrackingCategory( 'maps-tracking-category' );
 		}
 
@@ -158,6 +156,8 @@ class SMMapPrinter extends SMW\ResultPrinter {
 
 		$this->handleMarkerData( $params, $queryHandler );
 		$locationAmount = count( $params['locations'] );
+
+		$params['ajaxquery'] = urlencode( $params['ajaxquery'] );
 
 		if ( $locationAmount > 0 ) {
 			// We can only take care of the zoom defaulting here,

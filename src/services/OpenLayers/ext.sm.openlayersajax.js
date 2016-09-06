@@ -14,13 +14,13 @@
         // todo: find a way to remove setTimeout.
         setTimeout(function() {
             $( window.maps.openlayersList ).each( function( index, map ) {
-                if (!map.options.ajaxquery && !map.options.ajaxcoordproperty) {
+                if (!map.options.ajaxquery || !map.options.ajaxcoordproperty) {
                     return;
                 }
                 map.map.events.register( 'moveend', map.map, function () {
                     var bounds = map.map.getExtent().transform(map.map.projection, map.map.displayProjection);
                     var query = sm.buildQueryString(
-                        map.options.ajaxquery.join( ' ' ) + ' ',
+                        decodeURIComponent(map.options.ajaxquery.replace(/\+/g, ' ')),
                         map.options.ajaxcoordproperty,
                         bounds.top,
                         bounds.right,
@@ -31,7 +31,7 @@
                     if ( ajaxRequest !== null ) {
                         ajaxRequest.abort();
                     }
-                    sm.ajaxUpdateMarker( map, query).done( function () {
+                    ajaxRequest = sm.ajaxUpdateMarker( map, query, map.options.icon ).done( function () {
                         ajaxRequest = null;
                     } );
                 } );

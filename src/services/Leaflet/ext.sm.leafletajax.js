@@ -16,13 +16,13 @@
         // todo: find a way to remove setTimeout.
         setTimeout(function() {
             $( window.maps.leafletList ).each( function( index, map ) {
-                if (!map.options.ajaxquery && !map.options.ajaxcoordproperty) {
+                if (!map.options.ajaxquery || !map.options.ajaxcoordproperty) {
                     return;
                 }
                 map.map.on( mapEvents.join( ' ' ), function() {
                     var bounds = map.map.getBounds();
                     var query = sm.buildQueryString(
-                        map.options.ajaxquery.join( ' ' ) + ' ',
+                        decodeURIComponent(map.options.ajaxquery.replace(/\+/g, ' ')),
                         map.options.ajaxcoordproperty,
                         bounds.getNorthEast().lat,
                         bounds.getNorthEast().lng,
@@ -33,11 +33,12 @@
                     if ( ajaxRequest !== null ) {
                         ajaxRequest.abort();
                     }
-                    sm.ajaxUpdateMarker( map, query).done( function () {
+                    ajaxRequest = sm.ajaxUpdateMarker( map, query, map.options.icon ).done( function () {
+                        map.createMarkerCluster();
                         ajaxRequest = null;
                     } );
                 } );
             } );
-        }, 500 );
+        }, 1000 );
     } );
 })( window.jQuery, window.sm );
