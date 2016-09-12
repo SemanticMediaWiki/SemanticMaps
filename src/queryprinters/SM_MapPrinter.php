@@ -159,6 +159,12 @@ class SMMapPrinter extends SMW\ResultPrinter {
 
 		$params['ajaxquery'] = urlencode( $params['ajaxquery'] );
 
+		if ( isset( $params['layer'] ) ) {
+			$params['layers'] = [$params['layer']];
+		}
+		$layerDependencies = MapsDisplayMapRenderer::getLayerDependencies( $params['format'], $params['layers'] );
+		$this->service->addLayerDependencies( array_unique( $layerDependencies ) );
+
 		if ( $locationAmount > 0 ) {
 			// We can only take care of the zoom defaulting here,
 			// as not all locations are available in whats passed to Validator.
