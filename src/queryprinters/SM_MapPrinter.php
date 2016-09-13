@@ -159,7 +159,7 @@ class SMMapPrinter extends SMW\ResultPrinter {
 
 		$params['ajaxquery'] = urlencode( $params['ajaxquery'] );
 
-		$this->service->addLayerDependencies(
+		$this->service->addHtmlDependencies(
 			MapsDisplayMapRenderer::getLayerDependencies( $params['format'], $params )
 		);
 
