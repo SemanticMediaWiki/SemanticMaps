@@ -78,12 +78,12 @@ class SMGeoCoordsValue extends SMWDataValue {
 	 * 
 	 * @since 0.6
 	 * 
-	 * @param string $value
+	 * @param string|null $value
 	 * 
 	 * @return SMWDescription
 	 * @throws InvalidArgumentException
 	 */
-	public function getQueryDescription( $value ) {
+	public function getQueryDescription( $value = null ) {
 		if ( !is_string( $value ) ) {
 			throw new InvalidArgumentException( '$value needs to be a string' );
 		}
