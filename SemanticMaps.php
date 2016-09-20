@@ -31,7 +31,7 @@ if ( !defined( 'Maps_VERSION' ) ) {
 	throw new Exception( 'You need to have Maps installed in order to use Semantic Maps' );
 }
 
-define( 'SM_VERSION', '3.4.0' );
+define( 'SM_VERSION', '3.4.1' );
 
 require_once __DIR__ . '/SM_Settings.php';
 
