@@ -1,5 +1,11 @@
 These are the release notes for the Semantic Maps extension.
 
+## Semantic Maps 3.4.1
+
+Released on September 21st, 2016.
+
+* Fixed regression introduced in 3.4 that caused the result formats to not be available
+
 ## Semantic Maps 3.4
 
 Released on September 18th, 2016.
