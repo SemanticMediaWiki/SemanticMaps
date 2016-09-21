@@ -28,12 +28,7 @@ the same way as that of the Maps extension.
 
 ## Contributing and support
 
-* [File an issue](https://github.com/SemanticMediaWiki/SemanticMaps/issues)
-* [Submit a pull request](https://github.com/SemanticMediaWiki/SemanticMaps/pulls) ([tasks for newcommers](https://github.com/SemanticMediaWiki/SemanticMaps/issues?q=is%3Aissue+is%3Aopen+label%3Anewcomer))
-* Ask a question on [the mailing list](https://semantic-mediawiki.org/wiki/Mailing_list)
-* Ask a question on the #semantic-mediawiki IRC channel on Freenode.
-
-You can run the PHPUnit tests by changing into the `tests/phpunit` directory of your MediaWiki
-install and running
-
-    php phpunit.php -c ../../extensions/SemanticMaps/
+Semantic Maps 3.4.x is the last release of Semantic Maps as a dedicated extension.
+It has been merged into the [Maps extension](https://github.com/JeroenDeDauw/Maps),
+where development continues. All features available in Semantic Maps 3.4.x are
+available in Maps 4.0.x.
