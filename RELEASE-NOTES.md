@@ -1,5 +1,10 @@
 These are the release notes for the Semantic Maps extension.
 
+Note that Semantic Maps 3.4.x is the last release of Semantic Maps as a dedicated extension. It has been
+merged into the [Maps](https://github.com/JeroenDeDauw/Maps) extension, where development continues. All features
+available in Semantic Maps 3.4.x are now available in Maps 4.0.x!
+
+
 ## Semantic Maps 3.4.1
 
 Released on September 21st, 2016.
