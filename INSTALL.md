@@ -6,18 +6,16 @@ These are the installation and configuration instructions for the [SemanticMaps]
 
 ## Versions
 
+Note that Semantic Maps 3.4.x is the last release of Semantic Maps as a dedicated extension. It has been
+merged into the [Maps](https://github.com/JeroenDeDauw/Maps) extension, where development continues. All features
+available in Semantic Maps 3.4.x are now available in Maps 4.0.x!
+
 <table>
 	<tr>
 		<th></th>
 		<th>Status</th>
 		<th>Release date</th>
 		<th>Git branch</th>
-	</tr>
-		<tr>
-		<th><a href="RELEASE-NOTES.md">Semantic Maps 3.5.0</a></th>
-		<td>Development version</td>
-		<td>Future release</td>
-		<td><a href="https://github.com/SemanticMediaWiki/SemanticMaps/tree/master">master</a></td>
 	</tr>
 	<tr>
 		<th><a href="RELEASE-NOTES.md">Semantic Maps 3.4.x</a></th>
@@ -74,15 +72,6 @@ These are the installation and configuration instructions for the [SemanticMaps]
 		<th>Maps</th>
 		<th>Composer</th>
 		<th>Validator</th>
-	</tr>
-		<tr>
-		<th>S. Maps 3.5.x</th>
-		<td>5.5 - 7.x</td>
-		<td>1.23 - 1.27</td>
-		<td>2.x >= 2.1</td>
-		<td>3.x</td>
-		<td>Required</td>
-		<td>2.x (handled by Composer)</td>
 	</tr>
 	<tr>
 		<th>S. Maps 3.4.x</th>
