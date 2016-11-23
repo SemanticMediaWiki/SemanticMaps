@@ -6,9 +6,9 @@ These are the installation and configuration instructions for the [SemanticMaps]
 
 ## Versions
 
-Note that Semantic Maps 3.4.x is the last release of Semantic Maps as a dedicated extension. It has been
+Note that Semantic Maps 3.4.2 is the last release of Semantic Maps as a dedicated extension. It has been
 merged into the [Maps](https://github.com/JeroenDeDauw/Maps) extension, where development continues. All features
-available in Semantic Maps 3.4.x are now available in Maps 4.0.x!
+available in Semantic Maps 3.4.2 are now available in Maps 4.0 and later!
 
 <table>
 	<tr>
@@ -18,9 +18,9 @@ available in Semantic Maps 3.4.x are now available in Maps 4.0.x!
 		<th>Git branch</th>
 	</tr>
 	<tr>
-		<th><a href="RELEASE-NOTES.md">Semantic Maps 3.4.x</a></th>
-		<td>Stable release</td>
-		<td>Future</td>
+		<th><a href="RELEASE-NOTES.md">Semantic Maps 3.4.2</a></th>
+		<td>Obsolete release</td>
+		<td>2016-11-23</td>
 		<td><a href="https://github.com/SemanticMediaWiki/SemanticMaps/tree/3.4.0">3.4.x</a></td>
 	</tr>
 	<tr>
