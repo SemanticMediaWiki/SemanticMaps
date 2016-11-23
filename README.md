@@ -11,7 +11,7 @@ includes the ability to add, edit, aggregate and visualize coordinate data store
 [Semantic MediaWiki](https://semantic-mediawiki.org/).
 
 Since Semantic Maps uses the Maps API, you can use multiple mapping services. These include
-Google Maps (with Google Earth support), Yahoo! Maps, OpenLayers and OpenStreetMap.
+Google Maps (with Google Earth support), OpenLayers and Leaflet.
 
 Both Semantic Maps and Maps are based on Semantic Google Maps and Semantic Layers, and are
 meant to replace these extensions. Having Semantic MediaWiki and Maps installed is a
@@ -28,7 +28,7 @@ the same way as that of the Maps extension.
 
 ## Contributing and support
 
-Semantic Maps 3.4.x is the last release of Semantic Maps as a dedicated extension.
+Semantic Maps 3.4.2 is the last release of Semantic Maps as a dedicated extension.
 It has been merged into the [Maps extension](https://github.com/JeroenDeDauw/Maps),
-where development continues. All features available in Semantic Maps 3.4.x are
-available in Maps 4.0.x.
+where development continues. All features available in Semantic Maps 3.4.2 are
+available in Maps 4.0 and later.
