@@ -20,7 +20,7 @@ available in Semantic Maps 3.4.2 are now available in Maps 4.0 and later!
 	<tr>
 		<th><a href="RELEASE-NOTES.md">Semantic Maps 3.4.2</a></th>
 		<td>Obsolete release</td>
-		<td>Future</td>
+		<td>2016-11-23</td>
 		<td><a href="https://github.com/SemanticMediaWiki/SemanticMaps/tree/3.4.0">3.4.x</a></td>
 	</tr>
 	<tr>
