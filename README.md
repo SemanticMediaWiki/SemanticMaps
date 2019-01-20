@@ -5,9 +5,8 @@
 [![Latest Stable Version](https://poser.pugx.org/mediawiki/semantic-maps/version.png)](https://packagist.org/packages/mediawiki/semantic-maps)
 [![Download count](https://poser.pugx.org/mediawiki/semantic-maps/d/total.png)](https://packagist.org/packages/mediawiki/semantic-maps)
 
-Semantic Maps is an extension that adds semantic capabilities to the [Maps extension]
-(https://github.com/JeroenDeDauw/Maps). This
-includes the ability to add, edit, aggregate and visualize coordinate data stored through
+Semantic Maps is an extension that adds semantic capabilities to the [Maps extension](https://github.com/JeroenDeDauw/Maps).
+This includes the ability to add, edit, aggregate and visualize coordinate data stored through
 [Semantic MediaWiki](https://semantic-mediawiki.org/).
 
 Since Semantic Maps uses the Maps API, you can use multiple mapping services. These include
